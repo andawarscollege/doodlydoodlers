@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: monospace, sans-serif;
+      background-color: #dfafff;
+    }
+    h1 {
+      text-align: center;
+      color: #a200ff;
+      font-size: 36px;
+      text-shadow: 2px 2px 4px rgba(4, 0, 255, 0.2); /* Add text shadow for a cartoony effect */
+    }
+    #container {
+      width: 800px;
+      margin: 0 auto;
+      border: 2px solid #cccccc; /* Add an outline to the container */
+      padding: 20px;
+      background-color: #ffffff;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Add box shadow for a cartoony effect */
+      border-radius: 10px; /* Add rounded corners */
+    }
+    #text {
+      font-size: 24px;
+      line-height: 1.5;
+      user-select: none;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Add text shadow for a cartoony effect */
+    }
+    #input {
+      width: 100%;
+      height: 40px;
+      font-size: 24px;
+      border: 2px solid #999999; /* Add an outline to the input */
+      padding: 5px;
+      border-radius: 5px; /* Add rounded corners */
+      outline: none; /* Remove the default input outline */
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333333;
+    }
+    #timer {
+      font-size: 20px;
+      text-align: center;
+      color: #ff0000;
+    }
+    #gameOver {
+      font-size: 28px;
+      text-align: center;
+      color: #ff0000;
+      text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2); /* Add text shadow for a cartoony effect */
+    }
+    #playAgain {
+      font-size: 24px;
+      text-align: center;
+      cursor: pointer;
+      color: blue;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Add text shadow for a cartoony effect */
+      display: none;
+      background-color: #f0f0f0; /* Background color for the "Play Again" button */
+      padding: 10px 20px;
+      border: 2px solid #cccccc; /* Add an outline to the button */
+      border-radius: 5px; /* Add rounded corners */
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Doodly Doodlers</h1>
+  <div id="container">
+    <p id="text"></p>
+    <input id="input" type="text" placeholder="Type here..." autofocus>
+    <p id="result"></p>
+    <div id="timer">Time left: <span id="time">60</span> seconds</div>
+    <div id="gameOver"></div>
+    <div id="playAgain" onclick="restartGame()">Play Again</div>
+  </div>
+  <script>
+    var text = document.getElementById("text");
+    var input = document.getElementById("input");
+    var result = document.getElementById("result");
+    var timerElement = document.getElementById("timer");
+    var timeElement = document.getElementById("time");
+    var gameOverElement = document.getElementById("gameOver");
+    var playAgainElement = document.getElementById("playAgain");
+
+    var startTime = 0;
+    var endTime = 0;
+    var typedText = "";
+    var originalText = "";
+    var isPlaying = false;
+    var timer = null;
+    var totalTime = 60; // Total time in seconds
+
+    // An array of different paragraphs
+    var paragraphs = [
+      "Why don't scientists trust atoms? Because they make up everything!",
+      "Parallel lines have so much in common. It's a shame they'll never meet.",
+      "I used to play piano by ear, but now I use my hands.",
+      "Did you hear about the mathematician who's afraid of negative numbers? He'll stop at nothing to avoid them.",
+      "I'm on a seafood diet. I see food, and I eat it!",
+      "I told my computer I needed a break, and now it won't stop sending me vacation ads.",
+"Why did the scarecrow win an award? Because he was outstanding in his field!",
+"I asked the librarian if they had books on paranoia, but she whispered, 'They're right behind you.'",
+"Why don't scientists trust atoms? Because they make up everything!",
+"I used to play piano by ear, but now I use my hands.",
+"I'm on a seafood diet. I see food, and I eat it.",
+"I'm reading a book on anti-gravity—it's impossible to put down.",
+"I told my wife she was drawing her eyebrows too high. She looked surprised.",
+"Why did the math book look sad? Because it had too many problems.",
+"I'm writing a book on procrastination. I'll finish it someday.",
+"I told my dog he's not allowed on the couch. Now he's acting like a so-fa king rebel!",
+"I used to be a baker, but I couldn't make enough dough.",
+"Why did the bicycle fall over? Because it was two-tired.",
+"I'm reading a book on reverse psychology. Please don't buy it.",
+"I don't trust stairs because they're always up to something.",
+"I'm not arguing; I'm just explaining why I'm right.",
+"I don't need a hairstylist; my pillow gives me a new hairstyle every morning.",
+"I'm not lazy; I'm just in energy-saving mode.",
+"I used to play piano in a bar, but I got in treble.",
+"I'm so old, I remember when emojis were called 'hieroglyphics.'",
+"I'm on a seafood diet. I've lost three days already.",
+"I used to be a baker, but I couldn't make enough dough.",
+"I'm reading a book on anti-gravity—it's impossible to put down.",
+"I told my wife she was drawing her eyebrows too high. She looked surprised.",
+"I used to be a baker, but I couldn't make enough dough.",
+"I'm reading a book on reverse psychology. Please don't buy it.",
+"I don't trust stairs because they're always up to something.",
+"I'm not arguing; I'm just explaining why I'm right.",
+"I don't need a hairstylist; my pillow gives me a new hairstyle every morning.",
+"I'm not lazy; I'm just in energy-saving mode.",
+"I used to play piano in a bar, but I got in treble.",
+"I'm so old, I remember when emojis were called 'hieroglyphics.'",
+"I'm on a whiskey diet. I've lost three days already.",
+"Why did the scarecrow become a successful motivational speaker? Because he was outstanding in his field!",
+"I'm reading a book on time travel. It's about time.",
+"I asked the gym trainer for advice on bulking up, and he told me to start with the fridge.",
+"Why don't skeletons fight each other? They don't have the guts.",
+"I told my friend a joke about construction, but it was too concrete for him.",
+"I'm so bad at cooking that my smoke alarm cheers me on.",
+"I used to be a baker, but I couldn't make enough dough.",
+"I'm reading a book on reverse psychology. Please don't buy it.",
+"I don't trust stairs because they're always up to something.",
+"I'm not arguing; I'm just explaining why I'm right.",
+"I don't need a hairstylist; my pillow gives me a new hairstyle every morning.",
+"I'm not lazy; I'm just in energy-saving mode.",
+"I used to play piano in a bar, but I got in treble.",
+"I'm so old, I remember when emojis were called 'hieroglyphics.'",
+"I'm on a whiskey diet. I've lost three days already.",
+"Why did the scarecrow become a successful motivational speaker? Because he was outstanding in his field!",
+"I'm reading a book on time travel. It's about time."
+    ];
+
+    function getRandomParagraph() {
+      return paragraphs[Math.floor(Math.random() * paragraphs.length)];
+    }
+
+    function startNewGame() {
+      originalText = getRandomParagraph();
+      text.textContent = originalText;
+      input.value = ""; // Clear the input
+      result.innerHTML = ""; // Clear the result
+      gameOverElement.textContent = ""; // Clear the "Game Over" message
+      playAgainElement.style.display = "none"; // Hide the "Play Again" option
+      input.disabled = false; // Enable the input
+      totalTime = 60; // Reset the total time
+      timeElement.textContent = totalTime; // Update the timer display
+      isPlaying = false; // Reset the game state
+      input.focus(); // Focus on the input field
+      startTimer(); // Start the timer
+    }
+
+    input.addEventListener("input", function() {
+      typedText = input.value;
+
+      if (!isPlaying) {
+        startTime = new Date().getTime();
+        isPlaying = true;
+      }
+
+      if (typedText === originalText) {
+        endTime = new Date().getTime();
+        var elapsedTime = (endTime - startTime) / 1000; // in seconds
+        var wordsPerMinute = calculateWordsPerMinute(originalText, elapsedTime);
+        var accuracy = calculateAccuracy(originalText, typedText);
+
+        result.innerHTML = "Time taken: " + elapsedTime.toFixed(2) + " seconds<br>" +
+          "Words per minute: " + wordsPerMinute.toFixed(2) + "<br>" +
+          "Accuracy: " + accuracy.toFixed(2) + "%";
+
+        // Display "Game Over" message and "Play Again" option
+        gameOverElement.textContent = "Game Over";
+        playAgainElement.style.display = "block";
+        input.disabled = true; // Disable the input
+        clearInterval(timer); // Stop the timer
+      }
+    });
+
+    // Helper function to start the timer
+    function startTimer() {
+      timer = setInterval(function() {
+        totalTime--;
+        timeElement.textContent = totalTime;
+
+        if (totalTime === 0) {
+          // End the game when the timer reaches 0
+          clearInterval(timer);
+          result.innerHTML = "Time's up!";
+          input.disabled = true;
+
+          // Display "Game Over" message and "Play Again" option
+          gameOverElement.textContent = "Game Over";
+          playAgainElement.style.display = "block";
+        }
+      }, 1000); // Update every second
+    }
+
+    // Helper function to calculate words per minute
+    function calculateWordsPerMinute(text, time) {
+      var words = text.split(' ').length;
+      return (words / (time / 60));
+    }
+
+    // Helper function to calculate accuracy
+    function calculateAccuracy(original, typed) {
+      var correctChars = 0;
+      for (var i = 0; i < typed.length; i++) {
+        if (typed[i] === original[i]) {
+          correctChars++;
+        }
+      }
+      return (correctChars / original.length) * 100;
+    }
+
+    // Start a new game initially
+    startNewGame();
+
+    // Restart the game
+    function restartGame() {
+      startNewGame();
+    }
+  </script>
+</body>
+</html>
